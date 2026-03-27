@@ -1,0 +1,291 @@
+:root {
+    --bg-color: #050505;
+    --grid-color: #111;
+    --primary-color: #00ffcc;
+    --secondary-color: #ff0055;
+    --text-color: #e0e0e0;
+    --font-main: 'Outfit', sans-serif;
+    --glow-spread: 15px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    background-image: 
+        linear-gradient(rgba(0, 255, 204, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 204, 0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+#game-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    background: rgba(10, 10, 10, 0.8);
+    border: 1px solid rgba(0, 255, 204, 0.2);
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 0 40px rgba(0, 255, 204, 0.1);
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+}
+
+.screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    animation: fadeIn 0.4s ease-out;
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* Typography & Glitch */
+h1 {
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    text-shadow: 0 0 var(--glow-spread) var(--primary-color);
+    letter-spacing: 4px;
+}
+
+.glitch-text {
+    position: relative;
+}
+
+.glitch-text::before, .glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.8;
+}
+
+.glitch-text::before {
+    left: 3px;
+    text-shadow: -2px 0 var(--secondary-color);
+    animation: glitch-anim-1 2s infinite linear alternate-reverse;
+}
+
+.glitch-text::after {
+    left: -3px;
+    text-shadow: 2px 0 #0055ff;
+    animation: glitch-anim-2 3s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim-1 {
+    0% { clip-path: inset(20% 0 80% 0); }
+    20% { clip-path: inset(60% 0 10% 0); }
+    40% { clip-path: inset(40% 0 50% 0); }
+    60% { clip-path: inset(80% 0 5% 0); }
+    80% { clip-path: inset(10% 0 70% 0); }
+    100% { clip-path: inset(30% 0 20% 0); }
+}
+
+@keyframes glitch-anim-2 {
+    0% { clip-path: inset(10% 0 60% 0); }
+    20% { clip-path: inset(30% 0 20% 0); }
+    40% { clip-path: inset(70% 0 10% 0); }
+    60% { clip-path: inset(20% 0 50% 0); }
+    80% { clip-path: inset(50% 0 30% 0); }
+    100% { clip-path: inset(5% 0 80% 0); }
+}
+
+p {
+    font-size: 1.1rem;
+    color: rgba(224, 224, 224, 0.7);
+    margin-bottom: 40px;
+    line-height: 1.6;
+}
+
+h2 {
+    font-size: 2.5rem;
+    color: var(--secondary-color);
+    text-shadow: 0 0 var(--glow-spread) var(--secondary-color);
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+}
+
+/* Buttons */
+.glow-btn {
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    font-family: var(--font-main);
+    font-size: 1.2rem;
+    font-weight: 700;
+    padding: 15px 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    box-shadow: 0 0 10px rgba(0, 255, 204, 0.2), inset 0 0 10px rgba(0, 255, 204, 0.1);
+}
+
+.glow-btn:hover {
+    background: var(--primary-color);
+    color: var(--bg-color);
+    box-shadow: 0 0 20px rgba(0, 255, 204, 0.6), inset 0 0 10px rgba(255,255,255,0.5);
+    transform: scale(1.05);
+}
+
+.glow-btn:active {
+    transform: scale(0.95);
+}
+
+#restart-btn {
+    border-color: var(--secondary-color);
+    color: var(--secondary-color);
+    box-shadow: 0 0 10px rgba(255, 0, 85, 0.2), inset 0 0 10px rgba(255, 0, 85, 0.1);
+}
+
+#restart-btn:hover {
+    background: var(--secondary-color);
+    color: var(--bg-color);
+    box-shadow: 0 0 20px rgba(255, 0, 85, 0.6), inset 0 0 10px rgba(255,255,255,0.5);
+}
+
+/* HUD */
+#hud {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 0 10px;
+}
+
+.hud-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px 15px;
+    border-radius: 8px;
+    min-width: 90px;
+}
+
+.hud-label {
+    font-size: 0.7rem;
+    color: rgba(224, 224, 224, 0.5);
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+
+.hud-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-shadow: 0 0 8px rgba(0, 255, 204, 0.5);
+}
+
+/* Canvas Wrapper */
+.canvas-wrapper {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0,0,0,0.8);
+    background: var(--grid-color);
+    border: 2px solid rgba(255,255,255,0.05);
+}
+
+canvas {
+    display: block;
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 20px 20px; /* matches grid size */
+}
+
+/* Overlays */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    transition: opacity 0.3s ease;
+}
+
+.overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.overlay h2 {
+    color: var(--primary-color);
+    text-shadow: 0 0 var(--glow-spread) var(--primary-color);
+    margin: 0;
+}
+
+/* Game Over Stats */
+.stats {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 0, 85, 0.2);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    width: 80%;
+}
+
+.stats p {
+    margin: 10px 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.stats span {
+    color: var(--secondary-color);
+    text-shadow: 0 0 8px var(--secondary-color);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 500px) {
+    #game-container {
+        border-radius: 0;
+        border: none;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    canvas {
+        width: 100%;
+        max-width: 400px;
+        height: auto;
+    }
+}
