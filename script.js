@@ -1,11 +1,15 @@
 // Game Constants
 const GRID_SIZE = 20;
-const CANVAS_SIZE = 400; // 400x400
+const CANVAS_SIZE = 400; 
 const TILE_COUNT = CANVAS_SIZE / GRID_SIZE;
-const BASE_SPEED = 8; // moves per second
+const BASE_SPEED = 8; 
 const MAX_SPEED = 20;
 
-// Audio Context setup (lazy initialized on first interaction)
+// Asset Loading
+const snakeHeadImg = new Image();
+snakeHeadImg.src = 'snake-head.png'; // Replace with your icon path
+
+// Audio Context setup
 let audioCtx;
 
 function playSound(type) {
@@ -90,12 +94,10 @@ let state = {
     currentSpeed: BASE_SPEED
 };
 
-// Initialize UI
 ui.highScore.textContent = state.highScore;
 
 // Input Handling
 window.addEventListener('keydown', e => {
-    // Prevent default scrolling for arrow keys and space
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
         e.preventDefault();
     }
@@ -121,7 +123,6 @@ window.addEventListener('keydown', e => {
     }
 });
 
-// Controls
 btns.start.addEventListener('click', () => {
     initAudio();
     startGame();
@@ -190,7 +191,7 @@ function gameOver() {
     
     setTimeout(() => {
         switchScreen('gameOver');
-    }, 500); // Slight delay to show collision
+    }, 500);
 }
 
 function spawnFood() {
@@ -200,7 +201,6 @@ function spawnFood() {
             x: Math.floor(Math.random() * TILE_COUNT),
             y: Math.floor(Math.random() * TILE_COUNT)
         };
-        // Check if food spawns on snake
         const onSnake = state.snake.some(segment => segment.x === newFood.x && segment.y === newFood.y);
         if (!onSnake) break;
     }
@@ -212,7 +212,6 @@ function updateHUD() {
     ui.level.textContent = state.level;
 }
 
-// Main Game Loop using requestAnimationFrame for smooth rendering and time checks for game logic ticks
 function gameLoop(currentTime) {
     if (state.isPaused || state.isGameOver) return;
 
@@ -229,21 +228,17 @@ function gameLoop(currentTime) {
 }
 
 function update() {
-    // Update velocity to the validated next velocity
     state.velocity = state.nextVelocity;
     
     const head = { ...state.snake[0] };
-    
     head.x += state.velocity.x;
     head.y += state.velocity.y;
     
-    // Check Wall Collision
     if (head.x < 0 || head.x >= TILE_COUNT || head.y < 0 || head.y >= TILE_COUNT) {
         gameOver();
         return;
     }
     
-    // Check Self Collision
     if (state.snake.some(segment => segment.x === head.x && segment.y === head.y)) {
         gameOver();
         return;
@@ -251,17 +246,14 @@ function update() {
     
     state.snake.unshift(head);
     
-    // Check Food Collision
     if (head.x === state.food.x && head.y === state.food.y) {
         playSound('eat');
         state.score += 1;
         
-        // Level up logic every 5 points
         if (state.score % 5 === 0) {
             state.level += 1;
             state.currentSpeed = Math.min(MAX_SPEED, BASE_SPEED + (state.level - 1) * 1.5);
             playSound('levelUp');
-            // Flash canvas
             canvas.style.opacity = '0.5';
             setTimeout(() => canvas.style.opacity = '1', 100);
         }
@@ -269,65 +261,66 @@ function update() {
         updateHUD();
         spawnFood();
     } else {
-        // Remove tail if didn't eat
         state.snake.pop();
     }
 }
 
 function draw() {
-    // Clear canvas
     ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
     
-    // Draw Food with Glow
+    // Draw Food
     ctx.shadowBlur = 15;
     ctx.shadowColor = '#ff0055';
     ctx.fillStyle = '#ff0055';
-    // Slightly smaller than grid for aesthetics
     const pad = 2;
     ctx.beginPath();
-    if(ctx.roundRect) {
-        ctx.roundRect(
-            state.food.x * GRID_SIZE + pad, 
-            state.food.y * GRID_SIZE + pad, 
-            GRID_SIZE - pad * 2, 
-            GRID_SIZE - pad * 2, 
-            4
-        );
-    } else {
+    ctx.roundRect ? 
+        ctx.roundRect(state.food.x * GRID_SIZE + pad, state.food.y * GRID_SIZE + pad, GRID_SIZE - pad * 2, GRID_SIZE - pad * 2, 4) : 
         ctx.rect(state.food.x * GRID_SIZE + pad, state.food.y * GRID_SIZE + pad, GRID_SIZE - pad * 2, GRID_SIZE - pad * 2);
-    }
     ctx.fill();
     
     // Draw Snake
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = '#00ffcc';
-    
     state.snake.forEach((segment, index) => {
-        // Head gets a solid bright color, body slightly darker/gradient effect based on index
         if (index === 0) {
-            ctx.fillStyle = '#00ffcc';
+            // --- DRAW HEAD ICON ---
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#00ffcc';
+            
+            // Draw image if loaded, otherwise fallback to a colored circle
+            if (snakeHeadImg.complete && snakeHeadImg.naturalWidth !== 0) {
+                ctx.drawImage(
+                    snakeHeadImg, 
+                    segment.x * GRID_SIZE, 
+                    segment.y * GRID_SIZE, 
+                    GRID_SIZE, 
+                    GRID_SIZE
+                );
+            } else {
+                ctx.fillStyle = '#00ffcc';
+                ctx.beginPath();
+                ctx.arc(
+                    segment.x * GRID_SIZE + GRID_SIZE / 2, 
+                    segment.y * GRID_SIZE + GRID_SIZE / 2, 
+                    GRID_SIZE / 2 - 1, 0, Math.PI * 2
+                );
+                ctx.fill();
+            }
         } else {
-            // Fade out the tail slightly
+            // --- DRAW BODY ---
             const opacity = Math.max(0.3, 1 - (index / state.snake.length));
+            ctx.shadowBlur = 10 * opacity;
+            ctx.shadowColor = '#00ffcc';
             ctx.fillStyle = `rgba(0, 255, 204, ${opacity})`;
-            ctx.shadowBlur = 5 * opacity;
+            
+            ctx.beginPath();
+            if(ctx.roundRect) {
+                ctx.roundRect(segment.x * GRID_SIZE + 1, segment.y * GRID_SIZE + 1, GRID_SIZE - 2, GRID_SIZE - 2, 4);
+            } else {
+                ctx.rect(segment.x * GRID_SIZE + 1, segment.y * GRID_SIZE + 1, GRID_SIZE - 2, GRID_SIZE - 2);
+            }
+            ctx.fill();
         }
-        
-        ctx.beginPath();
-        if(ctx.roundRect) {
-            ctx.roundRect(
-                segment.x * GRID_SIZE + 1, 
-                segment.y * GRID_SIZE + 1, 
-                GRID_SIZE - 2, 
-                GRID_SIZE - 2, 
-                4
-            );
-        } else {
-            ctx.rect(segment.x * GRID_SIZE + 1, segment.y * GRID_SIZE + 1, GRID_SIZE - 2, GRID_SIZE - 2);
-        }
-        ctx.fill();
     });
     
-    // Reset shadow for next frame
     ctx.shadowBlur = 0;
 }
